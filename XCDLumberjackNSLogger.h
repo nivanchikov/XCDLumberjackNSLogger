@@ -2,7 +2,7 @@
 //  Copyright (c) 2015 Cédric Luthi. All rights reserved.
 //
 
-#import <CocoaLumberjack/CocoaLumberjack.h>
+#import <CocoaLumberjack/DDLog.h>
 #import <NSLogger/LoggerClient.h>
 
 /**
@@ -57,5 +57,8 @@
  *  For example, CocoaHTTPServer [defines a context](https://github.com/robbiehanson/CocoaHTTPServer/blob/52b2a64e9cbdb5f09cc915814a5fb68a45dd3707/Core/HTTPLogging.h#L55) of 80. In order to translate it to a `CocoaHTTPServer` tag, use  `lubmerjackNSLogger.tags = @{ @80 : @"CocoaHTTPServer" };`
  */
 @property (copy) NSDictionary *tags;
+
+
+@property (nonatomic, strong) id <DDLogFormatter> logFormatter;
 
 @end

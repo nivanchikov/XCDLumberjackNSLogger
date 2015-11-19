@@ -35,7 +35,11 @@ static NSData * MessageAsData(NSString *message);
 static void SetThreadNameWithMessage(DDLogMessage *logMessage)
 {
 	// There is no _thread name_ parameter for LogXXXToF functions, but we can abuse NSLogger’s thread name caching mechanism which uses the current thread dictionary
-	NSString *queueLabel = [logMessage.queueLabel isEqualToString:@"com.apple.main-thread"] ? @"Main Queue" : logMessage.queueLabel;
+	
+	NSString* label = [NSString stringWithUTF8String: logMessage->queueLabel];
+	
+	NSString *queueLabel = [label isEqualToString:@"com.apple.main-thread"] ? @"Main Queue" : label;
+	
 	NSThread.currentThread.threadDictionary[@"__$NSLoggerThreadName$__"] = [NSString stringWithFormat:@"%@ [%@]", logMessage.threadID, queueLabel];
 }
 
@@ -58,14 +62,15 @@ static void SetThreadNameWithMessage(DDLogMessage *logMessage)
 
 - (void) logMessage:(DDLogMessage *)logMessage
 {
-	int level = log2f(logMessage.flag);
-	NSString *tag = self.tags[@(logMessage.context)];
-	NSData *data = MessageAsData(logMessage.message);
+	int level = log2f(logMessage->logFlag);
+	
+	NSString *tag = self.tags[@(logMessage->logContext)];
+	NSData *data = MessageAsData(logMessage->logMsg);
 	SetThreadNameWithMessage(logMessage);
 	if (data)
-		LogDataToF(self.logger, logMessage.fileName.UTF8String, (int)logMessage.line, logMessage.function.UTF8String, tag, level, data);
+		LogDataToF(self.logger, logMessage.fileName.UTF8String, (int)logMessage->lineNumber, logMessage->function, tag, level, data);
 	else
-		LogMessageRawToF(self.logger, logMessage.fileName.UTF8String, (int)logMessage.line, logMessage.function.UTF8String, tag, level, logMessage.message);
+		LogMessageRawToF(self.logger, logMessage.fileName.UTF8String, (int)logMessage->lineNumber, logMessage->function, tag, level, logMessage->logMsg);
 }
 
 #pragma mark - NSObject
